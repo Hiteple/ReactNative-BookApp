@@ -10,7 +10,7 @@ const LineDivider = () => {
    );
 }
 
-const Home = () => {
+const Home = ({navigation}) => {
    const profileData = {
       name: 'Username',
       point: 200
@@ -89,13 +89,34 @@ const Home = () => {
       }
    ]
 
-   const categoriesData = {
-
-   }
+   const categoriesData = [
+      {
+         id: 1,
+         categoryName: "Best Seller",
+         books: [
+            bookOtherWordsForHome, bookTheMetropolis, bookTheTinyDragon
+         ]
+      },
+      {
+         id: 2,
+         categoryName: "The Latest",
+         books: [
+            bookTheMetropolis
+         ]
+      },
+      {
+         id: 3,
+         categoryName: "Coming Soon",
+         books: [
+            bookTheTinyDragon
+         ]
+      }
+  ]
 
    const [profile, setProfile] = useState(profileData);
    const [myBooks, setMyBooks] = useState(myBooksData);
    const [categories, setCategories] = useState(categoriesData);
+   const [selectedCategory, setSelectedCategory] = useState(1);
 
    const renderHeader = (profile) => {
       return (
@@ -208,7 +229,7 @@ const Home = () => {
                marginLeft: index == 0 ? SIZES.padding : 0,
                marginRight: SIZES.radius
             }}
-            onPress={() => console.log('pressed a book')}
+            onPress={() => navigation.navigate('BookDetail', {book: item})}
          >
             {/* Book cover */}
             <Image source={item.bookCover} resizeMode='cover' style={{width: 180, height: 250, borderRadius: 20}} />
@@ -251,7 +272,118 @@ const Home = () => {
       )
    }
 
-   const renderCategories = () => {}
+   const renderCategories = () => {
+      const renderItem = ({item, index}) => {
+         return (
+            <TouchableOpacity
+               style={{flex: 1, marginRight: SIZES.padding}}
+               onPress={() => setSelectedCategory(item.id)}
+            >
+               {
+                  selectedCategory == item.id && <Text style={{...FONTS.h2, color: COLORS.white, marginTop: -5}}>{item.categoryName}</Text>
+               }
+               {
+                  selectedCategory != item.id && <Text style={{...FONTS.h4, color: COLORS.lightGray}}>{item.categoryName}</Text>
+               }
+            </TouchableOpacity>
+         );
+      }
+
+      return (
+         <View style={{flex: 1, paddingLeft: SIZES.padding}}>
+            <FlatList
+               data={categories}
+               horizontal={true}
+               showsHorizontalScrollIndicator={false}
+               renderItem={renderItem}
+               keyExtractor={item => `${item.id}`}
+            />
+         </View>
+      );
+   }
+
+   const renderCategoryData = () => {
+      let books = [];
+
+      let selectedCategoryBooks = categories.filter(_ => _.id == selectedCategory);
+
+      if (selectedCategoryBooks.length > 0) {
+         books = selectedCategoryBooks[0].books;
+      }
+
+      const renderItem = ({item, index}) => {
+         return (
+            <View style={{marginVertical: SIZES.base}}>
+               <TouchableOpacity
+                  style={{flex: 1, flexDirection: 'row'}}
+                  onPress={() => navigation.navigate('BookDetail', {book: item})}
+               >
+                  {/* Book cover */}
+                  <Image source={item.bookCover} resizeMode='cover' style={{width: 100, height: 150, borderRadius:10}} />
+                  <View style={{flex: 1, marginLeft: SIZES.radius}}>
+                     {/* Book name and author */}
+                     <View>
+                        <Text style={{padingRight: SIZES.padding, ...FONTS.h2, color: COLORS.white}}>{item.bookName}</Text>
+                        <Text style={{...FONTS.h3, color: COLORS.lightGray}}>{item.author}</Text>
+                     </View>
+
+                     {/* book info */}
+                     <View style={{flexDirection: 'row', marginTop: SIZES.radius}}>
+                        <Image source={icons.page_filled_icon} resizeMode='cover' style={{width: 20, height: 20, tintColor: COLORS.lightGray}} />
+                        <Text style={{...FONTS.body4, color: COLORS.lightGray, paddingHorizontal: SIZES.radius}}>{item.pageNo}</Text>
+
+                        <Image source={icons.read_icon} resizeMode='cover' style={{width: 20, height: 20, tintColor: COLORS.lightGray}} />
+                        <Text style={{...FONTS.body4, color: COLORS.lightGray, paddingHorizontal: SIZES.radius}}>{item.readed}</Text>
+                     </View>
+
+                     {/* Genre */}
+                     <View style={{ flexDirection: 'row', marginTop: SIZES.base }}>
+                        {
+                           item.genre.includes("Adventure") &&
+                           <View style={{ justifyContent: 'center', alignItems: 'center', padding: SIZES.base, marginRight: SIZES.base, backgroundColor: COLORS.darkGreen, height: 40, borderRadius: SIZES.radius }}>
+                                 <Text style={{ ...FONTS.body3, color: COLORS.lightGreen }}>Adventure</Text>
+                           </View>
+                        }
+                        {
+                           item.genre.includes("Romance") &&
+                           <View style={{ justifyContent: 'center', alignItems: 'center', padding: SIZES.base, marginRight: SIZES.base, backgroundColor: COLORS.darkRed, height: 40, borderRadius: SIZES.radius }}>
+                                 <Text style={{ ...FONTS.body3, color: COLORS.lightRed }}>Romance</Text>
+                           </View>
+                        }
+                        {
+                           item.genre.includes("Drama") &&
+                           <View style={{ justifyContent: 'center', alignItems: 'center', padding: SIZES.base, marginRight: SIZES.base, backgroundColor: COLORS.darkBlue, height: 40, borderRadius: SIZES.radius }}>
+                                 <Text style={{ ...FONTS.body3, color: COLORS.lightBlue }}>Drama</Text>
+                           </View>
+                        }
+                     </View>
+                  </View>
+               </TouchableOpacity>
+
+               {/* Bookmark button */}
+               <TouchableOpacity
+                  style={{
+                     position: 'absolute', top: 5, right: 15
+                  }}
+                  onPress={() => console.log('pressed bookmark')}
+               >
+                  <Image source={icons.bookmark_icon} resizeMode='contain' style={{width: 25, height: 25, tintColor: COLORS.lightGray}} />
+               </TouchableOpacity>
+            </View>
+         );
+      }
+
+      return (
+         <View style={{flex: 1, marginTop: SIZES.radius, paddingLeft: SIZES.padding}}>
+            <FlatList
+               data={books}
+               renderItem={renderItem}
+               keyExtractor={item => `${item.id}`}
+               showsVerticalScrollIndicator={false}
+            />
+         </View>
+      );
+   }
 
    return (
       <SafeAreaView style={{flex: 1, backgroundColor: COLORS.black}}>
@@ -269,8 +401,13 @@ const Home = () => {
             </View>
 
             {/* Categories section */}
-            <View>
-               {renderCategories()}
+            <View style={{marginTop: SIZES.padding2}}>
+               <View>
+                  {renderCategories()}
+               </View>
+               <View>
+                  {renderCategoryData()}
+               </View>
             </View>
          </ScrollView>
       </SafeAreaView>
