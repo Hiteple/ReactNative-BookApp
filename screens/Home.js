@@ -323,7 +323,7 @@ const Home = ({navigation}) => {
                   <View style={{flex: 1, marginLeft: SIZES.radius}}>
                      {/* Book name and author */}
                      <View>
-                        <Text style={{padingRight: SIZES.padding, ...FONTS.h2, color: COLORS.white}}>{item.bookName}</Text>
+                        <Text style={{paddingRight: SIZES.padding, ...FONTS.h2, color: COLORS.white}}>{item.bookName}</Text>
                         <Text style={{...FONTS.h3, color: COLORS.lightGray}}>{item.author}</Text>
                      </View>
 
